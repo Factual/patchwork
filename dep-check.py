@@ -4,19 +4,25 @@ import json
 
 CONFIG_FILE_PATH = '/Users/laura/dependency_monitoring/config.json'
 VERBOSE = True
+DEFAULT_PARAMETERS = {
+    'traversal_depth': 1,
+    'subdirectory_blacklist': ['node_modules'],
+    "dependency_file_types": ["package.json"]
+}
 
 def parse_parameters(config_file):
     parameters = {}
     with open(config_file) as json_file:
         parameters = json.load(json_file)
-    return parameters
+    return {**DEFAULT_PARAMETERS, **parameters}
 
 def find_dependency_files(parameters):
+    print(parameters)
     dependency_file_paths = {}
     for f in parameters['dependency_file_types']:
         dependency_file_paths[f] = []
 
-    rootDir = parameters["default_directory"]
+    rootDir = parameters["directory"]
     baselevel = len(rootDir.split("/"))
     for dirName, subdirList, fileList in os.walk(rootDir):
         for subdir in parameters['subdirectory_blacklist']:
