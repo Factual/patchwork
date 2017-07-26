@@ -16,13 +16,26 @@ DEFAULT_PARAMETERS = {
     'report_directory': 'data/'
 }
 
-def parse_parameters(config_file):
+"""
+:param config_file: str Path to json file with unique config parameters (api_key, project_key at minimum)
+:returns: dict Concatenation of default parameters with overrides from the config_file
+"""
+def parse_parameters(config_file = ''):
     if not config_file: return DEFAULT_PARAMETERS
     parameters = {}
     with open(config_file) as json_file:
         parameters = json.load(json_file)
     return {**DEFAULT_PARAMETERS, **parameters}
 
+"""
+Traverse directory up to depth traversal_depth looking for dependency_file_types
+
+:param parameters: dict Result of parse_parameters, with entries for tree traversal -
+                        directory: str Path of top level directory to search
+                        traversal_depth: int Max depth of nested subtrees to search
+                        dependency_file_types: [str] File names to match against
+:returns: dict All paths to specified dependency_file_types, keyed by each dependency_file_type
+"""
 def find_dependency_files(parameters):
     dependency_file_paths = {}
     for f in parameters['dependency_file_types']:
@@ -42,24 +55,36 @@ def find_dependency_files(parameters):
                 dependency_file_paths[f].append(full_path_to_dependency)
     return dependency_file_paths
 
+"""
+Fetches VersionEye report for a given file
+
+:params dependency_file_path: str Path of dependency file to upload to VersionEye
+:params parameters: dict Result of parse_parameters, with entries for VersionEye access -
+                        api_key: str VersionEye api key
+                        project_key: str ID of VersionEye project to update
+                        directory: str Path of top level directory being searched
+:params save_dir: str Path to directory where returned report should be saved
+:returns: Dict JSON report from VersionEye
+"""
 def look_up_file(dependency_file_path, parameters, save_dir=''):
     POST_PROJECT = 'https://www.versioneye.com/api/v2/projects/{1}?api_key={0}'.format(parameters['api_key'], parameters['project_key'])
     file_name = dependency_file_path.split(parameters['directory'])[1][1:] + "_data.json"
     file_path = save_dir + '/' + file_name.replace('/','_')
-    print(file_path)
 
-    files = {'project_file': open(dependency_file_path,'rb')}
-    values = {
-        'project_key': parameters['project_key']
-    }
-
-    advisory = requests.post(POST_PROJECT, files=files, data=values)
+    advisory = requests.post(POST_PROJECT, {'project_file': open(dependency_file_path,'rb')})
     if save_dir:
-        print("saving")
         with open(file_path, 'w') as outfile:
             json.dump(advisory.json(), outfile)
     return advisory.json()
 
+"""
+Finds or creates new folder for VersionEye reports.
+If name is not provided, creates a new folder based on the timestamp.
+
+:params top_directory: str Directory under which to create new subdirectory
+:params name: str Optional - desired name of subdirectory
+:returns: str Path to subdirectory
+"""
 def get_directory_for_reports(top_directory, name = ''):
     if not name:
         name = datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d--%H_%M')
@@ -68,8 +93,11 @@ def get_directory_for_reports(top_directory, name = ''):
         os.makedirs(data_path)
     return data_path
 
-def problems_detected(data):
-    return data['out_number'] or data['sv_count']
+"""
+:returns: true iff the VersionEye report contains depdendencies that are either outdated or vulnerable.
+"""
+def problems_detected(report):
+    return report['out_number'] or report['sv_count']
 
 def parse_args(argv):
     helpstring = 'dep-check.py -c <config_file> [-v]'
