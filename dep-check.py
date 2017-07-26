@@ -9,7 +9,6 @@ DEFAULT_PARAMETERS = {
     'traversal_depth': 1,
     'subdirectory_blacklist': ['node_modules'],
     'dependency_file_types': ['package.json'],
-    'team_name': 'Owners',
     'api_key': 'REPLACE_ME_IN_CONFIG_FILE',
     'project_key': 'REPLACE_ME_IN_CONFIG_FILE',
 }

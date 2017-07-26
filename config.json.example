@@ -1,0 +1,8 @@
+{
+  "api_key": "XXXXXXXXXX",
+  "project_key": "XXXXXXXXXX",
+  "directory": "/path/to/my/directory",
+  "traversal_depth": 1,
+  "dependency_file_types": ["Gemfile.lock", "package.json"],
+  "subdirectory_blacklist": ["node_modules"]
+}
