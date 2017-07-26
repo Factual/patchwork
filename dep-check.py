@@ -2,6 +2,8 @@
 import os, sys, getopt
 import json
 import requests
+import time, datetime
+from generate_notifications import notify
 
 VERBOSE = False
 DEFAULT_PARAMETERS = {
@@ -11,6 +13,7 @@ DEFAULT_PARAMETERS = {
     'dependency_file_types': ['package.json'],
     'api_key': 'REPLACE_ME_IN_CONFIG_FILE',
     'project_key': 'REPLACE_ME_IN_CONFIG_FILE',
+    'report_directory': 'data/'
 }
 
 def parse_parameters(config_file):
@@ -39,19 +42,34 @@ def find_dependency_files(parameters):
                 dependency_file_paths[f].append(full_path_to_dependency)
     return dependency_file_paths
 
-def look_up_file(dependency_file_path, parameters):
+def look_up_file(dependency_file_path, parameters, save_dir=''):
     POST_PROJECT = 'https://www.versioneye.com/api/v2/projects/{1}?api_key={0}'.format(parameters['api_key'], parameters['project_key'])
-    project_name = '/'.join(dependency_file_path.split('/')[:-1])
+    file_name = dependency_file_path.split(parameters['directory'])[1][1:] + "_data.json"
+    file_path = save_dir + '/' + file_name.replace('/','_')
+    print(file_path)
 
     files = {'project_file': open(dependency_file_path,'rb')}
     values = {
         'project_key': parameters['project_key']
     }
 
-    print("Uploading {0} to VersionEye".format(dependency_file_path))
     advisory = requests.post(POST_PROJECT, files=files, data=values)
-    with open('data.json', 'w') as outfile:
-        json.dump(advisory.json(), outfile)
+    if save_dir:
+        print("saving")
+        with open(file_path, 'w') as outfile:
+            json.dump(advisory.json(), outfile)
+    return advisory.json()
+
+def get_directory_for_reports(top_directory, name = ''):
+    if not name:
+        name = datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d--%H_%M')
+    data_path = top_directory + name
+    if not os.path.exists(data_path):
+        os.makedirs(data_path)
+    return data_path
+
+def problems_detected(data):
+    return data['out_number'] or data['sv_count']
 
 def parse_args(argv):
     helpstring = 'dep-check.py -c <config_file> [-v]'
@@ -76,4 +94,6 @@ if __name__ == "__main__":
     config_file_path = parse_args(sys.argv[1:])
     params = parse_parameters(config_file_path)
     files = find_dependency_files(params)
-    #look_up_file(files['package.json'][0], params)
+    report = look_up_file(files['package.json'][0], params, get_directory_for_reports(params['report_directory']))
+    if problems_detected(report):
+        notify(report, 'slack', 'all')
