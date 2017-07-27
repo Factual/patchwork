@@ -1,0 +1,66 @@
+{
+  "total_dependencies": "<number>",
+  "total_outdated": "<number>",
+  "total_vulnerabilities": "<number>",
+  "scan_time": "<number (seconds)",
+  "dependencies": {
+    "<dependency_1_name>": {
+      "name": "<dependency_name>",
+      "version_available": "<most current version>",
+      "version_used": [
+        {"file": "<dependency_file_1>", "version": "<dependency_file_1_version>"},
+        {"file": "<dependency_file_2>", "version": "<dependency_file_2_version>"},
+      ],
+      "outdated": "<boolean",
+      "security_vulnerabilities": [
+        {
+          "cve_id": "<vulnerability_1_id>",
+          "summary": "<vulnerability_1_summary>",
+          "description": "<vulnerability_1_description>",
+          "publish_date": "<vulnerability_1_date number (seconds)>",
+          "patched_versions": "<vulnerability_1_patched_versions str>",
+          "unaffected_versions": "<vulnerability_1_unaffected_versions str>",
+          "link": "<link to more info>"
+        },
+        {
+          "cve_id": "<vulnerability_2_id>",
+          "summary": "<vulnerability_2_summary>",
+          "description": "<vulnerability_2_description>",
+          "publish_date": "<vulnerability_2_date number (seconds)>",
+          "patched_versions": "<vulnerability_2_patched_versions str>",
+          "unaffected_versions": "<vulnerability_2_unaffected_versions str>",
+          "link": "<link to more info>"
+        },
+      ]
+    },
+    "<dependency_2_name>": {
+      "name": "<dependency_name>",
+      "version_available": "<most current version>",
+      "version_used": [
+        {"file": "<dependency_file_1>", "version": "<dependency_file_1_version>"},
+        {"file": "<dependency_file_2>", "version": "<dependency_file_2_version>"},
+      ],
+      "outdated": "<boolean",
+      "security_vulnerabilities": [
+        {
+          "cve_id": "<vulnerability_1_id>",
+          "summary": "<vulnerability_1_summary>",
+          "description": "<vulnerability_1_description>",
+          "publish_date": "<vulnerability_1_date number (seconds)>",
+          "patched_versions": "<vulnerability_1_patched_versions str>",
+          "unaffected_versions": "<vulnerability_1_unaffected_versions str>",
+          "link": "<link to more info>"
+        },
+        {
+          "cve_id": "<vulnerability_2_id>",
+          "summary": "<vulnerability_2_summary>",
+          "description": "<vulnerability_2_description>",
+          "publish_date": "<vulnerability_2_date number (seconds)>",
+          "patched_versions": "<vulnerability_2_patched_versions str>",
+          "unaffected_versions": "<vulnerability_2_unaffected_versions str>",
+          "link": "<link to more info>"
+        },
+      ]
+    }
+  }
+}

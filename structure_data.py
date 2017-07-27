@@ -48,6 +48,7 @@ def structure_data(report, file_path):
                 vulnerability = { vulnerability_fields[key]: v[key] for key in vulnerability_fields.keys()}
                 ts = vulnerability[vulnerability_fields['publish_date']]
                 vulnerability[vulnerability_fields['publish_date']] = convert_versioneye_timestamp(ts)
+                vulnerability['link'] = v['links'][list(v['links'])[0]]
                 vulnerabilities.append(vulnerability)
         dependency['vulnerabilities'] = vulnerabilities
         dependencies[dependency['name']] = dependency
