@@ -15,7 +15,7 @@ dependency_fields = {
 }
 
 vulnerability_fields = {
-    'name_id': 'cve_id',
+    'name_id': 'id',
     'summary': 'summary',
     'description': 'description',
     'publish_date': 'publish_date',
@@ -48,7 +48,10 @@ def structure_data(report, file_path):
                 vulnerability = { vulnerability_fields[key]: v[key] for key in vulnerability_fields.keys()}
                 ts = vulnerability[vulnerability_fields['publish_date']]
                 vulnerability[vulnerability_fields['publish_date']] = convert_versioneye_timestamp(ts)
-                vulnerability['link'] = v['links'][list(v['links'])[0]]
+                if 'links' in v and len(v['links']):
+                    vulnerability['link'] = v['links'][list(v['links'])[0]]
+                else:
+                    vulnerability['link'] = None
                 vulnerabilities.append(vulnerability)
         dependency['vulnerabilities'] = vulnerabilities
         dependencies[dependency['name']] = dependency

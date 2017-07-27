@@ -4,6 +4,7 @@ import json
 import requests
 import time, datetime
 from generate_notifications import notify
+from structure_data import *
 
 VERBOSE = False
 DEFAULT_PARAMETERS = {
@@ -74,13 +75,9 @@ def look_up_file(dependency_file_path, parameters, save_dir=''):
     file_name = dependency_file_path.split(parameters['directory'])[1][1:] + "_data.json"
     file_path = save_dir + '/' + file_name.replace('/','_')
 
-    print(POST_PROJECT)
-    print(dependency_file_path)
     files = {'project_file': open(dependency_file_path,'rb')}
     data = {'project_key': parameters['project_key']}
-    print(files)
-    print(data)
-    advisory = requests.post(POST_PROJECT, files, data)
+    advisory = requests.post(POST_PROJECT, files=files, data=data)
     if advisory.status_code != 201:
         print('Error:', advisory.status_code)
         print(advisory.json())
@@ -110,7 +107,7 @@ def get_directory_for_reports(top_directory, name = ''):
 :returns: true iff the VersionEye report contains depdendencies that are either outdated or vulnerable.
 """
 def problems_detected(report):
-    return report['out_number'] or report['sv_count']
+    return report['total_outdated'] or report['total_vulnerabilities']
 
 def parse_args(argv):
     helpstring = 'dep-check.py -c <config_file> [-v]'
@@ -135,6 +132,21 @@ if __name__ == "__main__":
     config_file_path = parse_args(sys.argv[1:])
     params = parse_parameters(config_file_path)
     files = find_dependency_files(params)
-    report = look_up_file(files['package.json'][3], params, get_directory_for_reports(params['report_directory']))
-    if problems_detected(report):
-        notify(params, report)
+    dirname = get_directory_for_reports('data/')
+    # combined_report = {}
+    # for fname in files['package.json']:
+    #     raw_report = look_up_file(fname, params, dirname)
+    #     report_fname = fname.replace(params['directory'], params['report_directory'])
+    #     formatted_report = structure_data(raw_report, report_fname)
+    #     if combined_report:
+    #         combined_report = combine_reports(combined_report, formatted_report)
+    #     else:
+    #         combined_report = formatted_report
+    # print(combined_report)
+    # with open(dirname + '/npm_combined.json', 'w') as outfile:
+    #     json.dump(combined_report, outfile, indent=4, separators=(',', ': '))
+    combined_report_path_name = "data/2017_07_27--11_39/npm_combined.json"
+    with open(combined_report_path_name) as report_file:
+        combined_report = json.load(report_file)
+        if problems_detected(combined_report):
+            notify(params, combined_report)
