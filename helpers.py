@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import time, pytz, tzlocal
 
 def convert_versioneye_timestamp(time_string):
@@ -11,3 +11,20 @@ def convert_versioneye_timestamp(time_string):
     utc_time = datetime.strptime(time_string, date_template)
     local_time = utc_time.replace(tzinfo=pytz.utc).astimezone(local_timezone)
     return time.mktime(local_time.timetuple())
+
+def get_display_name(fname, params):
+    return fname.replace(params['directory'], params['report_directory'])
+
+def get_datetime():
+    return datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d--%H_%M')
+
+def within_last_week(ts):
+    now = datetime.fromtimestamp(time.time())
+    then = datetime.fromtimestamp(ts)
+    total_time = now - then
+    delta = timedelta(seconds=int(total_time))
+    week = timedelta(weeks=1)
+    print("Delta", delta)
+    print("Week", week)
+    print("Delta > Week?", delta > week)
+    return delta < week

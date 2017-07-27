@@ -2,13 +2,15 @@
 import os, sys, getopt
 import json
 import requests
-import time, datetime
+import time
 from generate_notifications import notify
 from structure_data import *
+from helpers import *
 
 VERBOSE = False
 DEFAULT_PARAMETERS = {
     'directory': '/',
+    'report_directory': '/',
     'traversal_depth': 1,
     'subdirectory_blacklist': ['node_modules'],
     'dependency_file_types': ['package.json'],
@@ -54,7 +56,7 @@ def find_dependency_files(parameters):
         if level >= (parameters['traversal_depth']): del subdirList[:]
         for f in fileList:
             if f in parameters['dependency_file_types']:
-                if VERBOSE: print(dirName, 'has a', f)
+                if VERBOSE: print(get_display_name(dirName, params), 'has a', f)
                 full_path_to_dependency = "{0}/{1}".format(dirName, f)
                 dependency_file_paths[f].append(full_path_to_dependency)
     return dependency_file_paths
@@ -97,7 +99,7 @@ If name is not provided, creates a new folder based on the timestamp.
 """
 def get_directory_for_reports(top_directory, name = ''):
     if not name:
-        name = datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d--%H_%M')
+        name = get_datetime()
     data_path = top_directory + name
     if not os.path.exists(data_path):
         os.makedirs(data_path)
@@ -108,6 +110,64 @@ def get_directory_for_reports(top_directory, name = ''):
 """
 def problems_detected(report):
     return report['total_outdated'] or report['total_vulnerabilities']
+
+'''
+:param files: dict Keyed by file type, list of dependency files. Output of find_dependency_files
+:param directory: string Optional - directory to save combined file type report to
+:param individual_directory: string Option - directory to save individual file reports to
+:returns: dict with { file_type: combined_report } entries
+'''
+def combined_reports_by_file_type(files, directory = '', individual_directory = ''):
+    type_reports = {}
+    for ftype in files:
+        combined_report = {}
+        for fname in files[ftype]:
+            if VERBOSE: print("Uploading {0}...".format(get_display_name(fname, params)))
+            raw_report = look_up_file(fname, params, individual_directory)
+            report_fname = get_display_name(fname, params)
+            formatted_report = structure_data(raw_report, report_fname)
+            if combined_report:
+                combined_report = combine_reports(combined_report, formatted_report)
+            else:
+                combined_report = formatted_report
+        type_reports[ftype] = combined_report
+        if directory:
+            report_path = dirname + '/' + ftype + '.json'
+            with open(report_path, 'w') as outfile:
+                json.dump(combined_report, outfile, indent=4, separators=(',', ': '))
+    if VERBOSE: print("Upload Completed")
+    return type_reports
+
+
+'''
+Gets full, formatted report given either file_type combined reports or dependency files dict
+Must provide either files or file_type_reports
+
+:param files: dict Keyed by file type, list of dependency files. Output of find_dependency_files
+:param file_type_reports: dict Keyed by file type, combined json reports.
+        Output of combined_reports_by_file_type
+:param directory: string Optional - directory to save combined report to
+:returns: (path_of_saved_report, combined_report_as_dict)
+'''
+def combined_reports_all(files = {}, file_type_reports = {}, directory = ''):
+    if not file_type_reports:
+        if VERBOSE: print("Fetching combined reports by file type...")
+        file_type_reports = combined_reports_by_file_type(files, directory)
+
+    all_reports = []
+    combined_report = {}
+    path_name = ""
+    if directory:
+        path_name = directory + '/combined.json'
+    for ftype in file_type_reports:
+        all_reports.append(file_type_reports[ftype])
+    combined_report = all_reports[0]
+    for report in all_reports[1:]:
+        combined_report = combine_reports(combined_report, report)
+    if path_name:
+        with open(path_name, 'w') as report_file:
+            json.dump(combined_report, report_file, indent=4, separators=(',', ': '))
+    return (path_name, combined_report)
 
 def parse_args(argv):
     helpstring = 'dep-check.py -c <config_file> [-v]'
@@ -133,20 +193,6 @@ if __name__ == "__main__":
     params = parse_parameters(config_file_path)
     files = find_dependency_files(params)
     dirname = get_directory_for_reports('data/')
-    # combined_report = {}
-    # for fname in files['package.json']:
-    #     raw_report = look_up_file(fname, params, dirname)
-    #     report_fname = fname.replace(params['directory'], params['report_directory'])
-    #     formatted_report = structure_data(raw_report, report_fname)
-    #     if combined_report:
-    #         combined_report = combine_reports(combined_report, formatted_report)
-    #     else:
-    #         combined_report = formatted_report
-    # print(combined_report)
-    # with open(dirname + '/npm_combined.json', 'w') as outfile:
-    #     json.dump(combined_report, outfile, indent=4, separators=(',', ': '))
-    combined_report_path_name = "data/2017_07_27--11_39/npm_combined.json"
-    with open(combined_report_path_name) as report_file:
-        combined_report = json.load(report_file)
-        if problems_detected(combined_report):
-            notify(params, combined_report)
+    report_path, report = combined_reports_all(files=files, directory=dirname)
+    if problems_detected(report):
+        notify(params, report)
