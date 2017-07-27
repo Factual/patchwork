@@ -24,3 +24,12 @@ def within_last_sprint(ts):
     total_time = now - then
     sprint = timedelta(weeks=2)
     return total_time < sprint
+
+def minor_release(ours, available):
+    return ours.startswith('.'.join(available.split('.')[:-1])) and ours != available
+
+def major_release(ours, available):
+    return ours.split('.')[0] != available.split('.')[0]
+
+def other_release(ours, available):
+    return ours != available

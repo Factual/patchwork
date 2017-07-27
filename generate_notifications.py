@@ -2,20 +2,20 @@ import requests
 import json
 import datetime
 from helpers import convert_versioneye_timestamp as get_time
-from helpers import within_last_sprint
+from helpers import within_last_sprint, major_release, minor_release, other_release
 from sample_data import report as test_report
 
-def notifySlack(params, report):
-    r = requests.post(params['slack_webhook'], json={'text': "", 'attachments': report})
-    print(r.status_code)
-
-
-def notifyEmail(report):
-    pass
-
-def notifyAll(report):
-    notifySlack(formattedReport)
-    notifyEmail(formattedReport)
+def notify_slack(params, report):
+    n = 20
+    print (report)
+    if len(report) <= n:
+        r = requests.post(params['slack_webhook'], json={'text': "", 'attachments': report})
+        print(r.status_code)
+    else:
+        multiple_requests = [report[i:i + n] for i in range(0, len(report), n)]
+        for req in multiple_requests:
+            r = requests.post(params['slack_webhook'], json={'text': "", 'attachments': req})
+            print(r.status_code)
 
 security_keys = [
     'id',
@@ -25,7 +25,7 @@ security_keys = [
     'dependencies'
 ]
 
-def getFormattedVersions(version_used):
+def get_formatted_versions(version_used):
     version_names = []
     for v in version_used:
         version_names.append(v['version'] + " in " + v['file'])
@@ -82,7 +82,7 @@ def formatVulnerabilities(vulnerabilities, dep_info):
             "fields": [
                 {
                     "title": "Our Versions",
-                    "value": getFormattedVersions(dep_info['version'])
+                    "value": get_formatted_versions(dep_info['version'])
                 },
                 {
                     "title": "Patched Versions",
@@ -101,7 +101,7 @@ def formatVulnerabilities(vulnerabilities, dep_info):
     return attachments
 
 
-def generateSecurityReport(response):
+def generate_security_report(response):
     vulnerable = []
     for d in response['dependencies']:
         dep = response['dependencies'][d]
@@ -114,29 +114,83 @@ def generateSecurityReport(response):
             vulnerable.extend(formatVulnerabilities(dep['vulnerabilities'], dep_info))
     return vulnerable
 
-def generateVersionsReport(response):
-    pass
+def batch_by_outdatedness(dependencies):
+    severity = {
+        'minor': {
+            'dependencies': [],
+            'color': "#ffb74d",
+            'desc': 'a minor update available'
+        },
+        'middle': {
+            'dependencies': [],
+            'color': "#f57c00",
+            'desc': 'an update available'
+        },
+        'major': {
+            'dependencies': [],
+            'color': "#d84315",
+            'desc': 'a major update available'
+        }
+    }
+    for d in dependencies:
+        avail = d['version_available']
+        if not avail:
+            continue
+        for version in d['version_used']:
+            v = dict(version)
+            v['available'] = avail
+            v['dependency'] = d['name']
+            print(v)
+            if major_release(version['version'], avail):
+                severity['major']['dependencies'].append(v)
+            elif minor_release(version['version'], avail):
+                severity['minor']['dependencies'].append(v)
+            elif other_release(version['version'], avail):
+                severity['middle']['dependencies'].append(v)
+    return severity
 
-def generateAllReports(response):
-    security = generateSecurityReport(response)
-    versions = generateVersionsReport(response)
-    # TODO combine
+def get_version_text(dependencies):
+    ds = []
+    for d in dependencies:
+        ds.append("*{0}* in {1}: {2} => {3}.".format(d['dependency'], d['file'], d['version'], d['available']))
+    string = '\n'.join(ds)
+    return string
+
+def format_version_attachment(group, ts):
+    title_text = "{0} dependencies have {1}.".format(len(group['dependencies']), group['desc'])
+    attach = {
+        "fallback": title_text,
+        "color": group['color'],
+        "title": title_text,
+        "text": get_version_text(group['dependencies']),
+        "mrkdwn_in": ["text"],
+        "ts": ts
+    }
+    return attach
+
+def generate_versions_report(response):
+    grouped = batch_by_outdatedness(response['dependencies'].values())
+    attachments = []
+    for g in grouped:
+        attachments.append(format_version_attachment(grouped[g], response['scan_time']))
+    return attachments
+
+def generate_all_reports(response):
+    attachments = []
+    attachments.extend(generate_security_report(response))
+    attachments.extend(generate_versions_report(response))
+    return attachments
 
 notify_methods = {
-    'slack': notifySlack,
-    'email': notifyEmail,
-    'all': notifyAll
+    'slack': notify_slack
 }
 
 notify_types = {
-    'all': generateAllReports,
-    'updates': generateVersionsReport,
-    'vulnerabilities': generateSecurityReport
+    'all': generate_all_reports,
+    'updates': generate_versions_report,
+    'vulnerabilities': generate_security_report
 }
 
-def notify(params, response, notification_method='slack', notification_type='vulnerabilities'):
+def notify(params, response, notification_method='slack', notification_type='all'):
     formatted_report = notify_types[notification_type](response)
     send_report = notify_methods[notification_method](params, formatted_report)
-
-# sec_report = generateSecurityReport(test_report)
-# notifySlack({'slack_webhook': "https://hooks.slack.com/services/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"}, sec_report)
