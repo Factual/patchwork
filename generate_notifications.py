@@ -2,6 +2,7 @@ import requests
 import json
 import datetime
 from helpers import convert_versioneye_timestamp as get_time
+from helpers import within_last_sprint
 from sample_data import report as test_report
 
 def notifySlack(params, report):
@@ -34,10 +35,22 @@ def date_string(seconds):
     t = datetime.datetime.fromtimestamp(seconds)
     return t.strftime("%m-%d-%Y")
 
-def getAttachmentText(vulnerability):
+def is_new(date):
+    return within_last_sprint(date)
+
+def get_color(vulnerability):
+    if is_new(vulnerability['publish_date']):
+        return 'danger'
+    else:
+        return 'warning'
+
+def get_attachment_text(vulnerability):
     description = vulnerability['description']
+    urgent = ""
+    if is_new(vulnerability['publish_date']):
+        urgent = "NEW!"
     parts = [
-        "",
+        urgent,
         "",
         "",
         "",
@@ -62,10 +75,10 @@ def formatVulnerabilities(vulnerabilities, dep_info):
             v['link'] = None
         attach = {
             "fallback": title,
-            "color": "danger",
+            "color": get_color(v),
             "title": title,
             "title_link": v['link'],
-            "text": getAttachmentText(v),
+            "text": get_attachment_text(v),
             "fields": [
                 {
                     "title": "Our Versions",

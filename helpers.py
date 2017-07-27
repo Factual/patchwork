@@ -18,13 +18,9 @@ def get_display_name(fname, params):
 def get_datetime():
     return datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d--%H_%M')
 
-def within_last_week(ts):
+def within_last_sprint(ts):
     now = datetime.fromtimestamp(time.time())
     then = datetime.fromtimestamp(ts)
     total_time = now - then
-    delta = timedelta(seconds=int(total_time))
-    week = timedelta(weeks=1)
-    print("Delta", delta)
-    print("Week", week)
-    print("Delta > Week?", delta > week)
-    return delta < week
+    sprint = timedelta(weeks=2)
+    return total_time < sprint
