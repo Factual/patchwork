@@ -1,4 +1,4 @@
-# Dependency Monitoring
+# Patchwork -- Dependency Monitoring for the Front Team
 
 ## Factual Hackathon 2017
 
