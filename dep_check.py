@@ -16,6 +16,9 @@ DEFAULT_PARAMETERS = {
     'report_directory': 'data/'
 }
 
+class VersionEyeException(Exception):
+    pass
+
 """
 :param config_file: str Path to json file with unique config parameters (api_key, project_key at minimum)
 :returns: dict Concatenation of default parameters with overrides from the config_file
@@ -71,7 +74,17 @@ def look_up_file(dependency_file_path, parameters, save_dir=''):
     file_name = dependency_file_path.split(parameters['directory'])[1][1:] + "_data.json"
     file_path = save_dir + '/' + file_name.replace('/','_')
 
-    advisory = requests.post(POST_PROJECT, {'project_file': open(dependency_file_path,'rb')})
+    print(POST_PROJECT)
+    print(dependency_file_path)
+    files = {'project_file': open(dependency_file_path,'rb')}
+    data = {'project_key': parameters['project_key']}
+    print(files)
+    print(data)
+    advisory = requests.post(POST_PROJECT, files, data)
+    if advisory.status_code != 201:
+        print('Error:', advisory.status_code)
+        print(advisory.json())
+        raise VersionEyeException
     if save_dir:
         with open(file_path, 'w') as outfile:
             json.dump(advisory.json(), outfile)
@@ -122,6 +135,6 @@ if __name__ == "__main__":
     config_file_path = parse_args(sys.argv[1:])
     params = parse_parameters(config_file_path)
     files = find_dependency_files(params)
-    report = look_up_file(files['package.json'][0], params, get_directory_for_reports(params['report_directory']))
+    report = look_up_file(files['package.json'][3], params, get_directory_for_reports(params['report_directory']))
     if problems_detected(report):
-        notify(report, 'slack', 'all')
+        notify(params, report)
