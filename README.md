@@ -30,7 +30,7 @@ Delete any lines of this file that you do not want - they will override the defa
 
 ## Run Patchwork
 
-`cd` into `patchwork/src` and run `chmod +x False.py` to make the dependency checker executable.
+`cd` into `patchwork/src` and run `chmod +x patchwork.py` to make the dependency checker executable.
 Run via `./patchwork.py`, or `./patchwork.py -v` for verbose mode.
 
 ## Types of Notifications
