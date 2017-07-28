@@ -2,7 +2,6 @@
 import os, sys, getopt
 import json
 import requests
-import time
 from generate_notifications import notify
 from structure_data import *
 from helpers import *

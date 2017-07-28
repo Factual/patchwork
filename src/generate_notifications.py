@@ -1,9 +1,6 @@
 import requests
 import json
-import datetime
-from helpers import convert_versioneye_timestamp as get_time
-from helpers import within_last_sprint, major_release, minor_release, other_release
-from sample_data import report as test_report
+from helpers import *
 
 def notify_slack(params, report):
     n = 20
@@ -30,10 +27,6 @@ def get_formatted_versions(version_used):
     for v in version_used:
         version_names.append(v['version'] + " in " + v['file'])
     return '\n'.join(version_names)
-
-def date_string(seconds):
-    t = datetime.datetime.fromtimestamp(seconds)
-    return t.strftime("%m-%d-%Y")
 
 def is_new(date):
     return within_last_sprint(date)

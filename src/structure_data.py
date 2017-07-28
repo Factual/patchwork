@@ -1,5 +1,4 @@
 from helpers import convert_versioneye_timestamp
-from sample_data import report as test_report
 
 top_level_fields = {
     'dep_number': 'total_dependencies',
