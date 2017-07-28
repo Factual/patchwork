@@ -28,6 +28,14 @@ In `patchwork/src`, copy `config.json.example` to `config.json` and edit the res
 The API key, project key, and Slack webhook URL you just generated are required.
 Delete any lines of this file that you do not want - they will override the default values if they are set.
 
+### Install Requirements
+
+Patchwork requires python3 and the pytz and tzlocal libraries. 
+Install python3 from https://www.python.org/downloads/.
+Then `pip3 install pytz` and `pip3 install tzlocal`.
+
+If your copy of python3 is anywhere other than `usr/local/bin/python3`, you may have to update the shebang on line 1 of `patchwork/src/patchwork.py` with the path to your copy. The path can be found with `which python3`.
+
 ## Run Patchwork
 
 `cd` into `patchwork/src` and run `chmod +x patchwork.py` to make the dependency checker executable.
