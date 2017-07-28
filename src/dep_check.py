@@ -101,6 +101,8 @@ def get_directory_for_reports(top_directory, name = ''):
     if not name:
         name = get_datetime()
     data_path = top_directory + name
+    if not os.path.exists(top_directory):
+        os.makedirs(top_directory)
     if not os.path.exists(data_path):
         os.makedirs(data_path)
     return data_path
@@ -149,22 +151,23 @@ Must provide either files or file_type_reports
 :param directory: string Optional - directory to save combined report to
 :returns: (path_of_saved_report, combined_report_as_dict)
 '''
-def combined_reports_all(files = {}, file_type_reports = {}, directory = ''):
+def combined_reports_all(files = {}, file_type_reports = {}, directory = '', persist=False):
+    if not directory and persist:
+        directory = get_directory_for_reports('data/')
     if not file_type_reports:
         if VERBOSE: print("Fetching combined reports by file type...")
-        file_type_reports = combined_reports_by_file_type(files, directory)
+        file_type_reports = combined_reports_by_file_type(files)
 
     all_reports = []
     combined_report = {}
-    path_name = ""
-    if directory:
-        path_name = directory + '/combined.json'
+
+    path_name = directory + '/combined.json'
     for ftype in file_type_reports:
         all_reports.append(file_type_reports[ftype])
     combined_report = all_reports[0]
     for report in all_reports[1:]:
         combined_report = combine_reports(combined_report, report)
-    if path_name:
+    if persist:
         with open(path_name, 'w') as report_file:
             json.dump(combined_report, report_file, indent=4, separators=(',', ': '))
     return (path_name, combined_report)
@@ -192,7 +195,6 @@ if __name__ == "__main__":
     config_file_path = parse_args(sys.argv[1:])
     params = parse_parameters(config_file_path)
     files = find_dependency_files(params)
-    dirname = get_directory_for_reports('data/')
-    report_path, report = combined_reports_all(files=files, directory=dirname)
+    report_path, report = combined_reports_all(files=files)
     if problems_detected(report):
         notify(params, report)
