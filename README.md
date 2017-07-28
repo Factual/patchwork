@@ -28,6 +28,28 @@ In `patchwork/src`, copy `config.json.example` to `config.json` and edit the res
 The API key, project key, and Slack webhook URL you just generated are required.
 Delete any lines of this file that you do not want - they will override the default values if they are set.
 
+#### Supported Dependency Options
+
+Files managed by the following package managers can be parsed with Patchwork through the VersionEye API. For example, both `Gemfile`s and `Gemfile.lock`s are supported under the Ruby Bundler. 
+
+- Composer (PHP)
+- Bundler (Ruby)
+- PIP (Python)
+- NPM (Node.JS)
+- Yarn (Node.JS)
+- Bower (JavaScript)
+- CocoaPods (Objective-C)
+- Maven (Java)
+- SBT (Scala)
+- Gradle (Groovy)
+- Leiningen (Clojure)
+- Nuget (Microsoft .NET platform)
+- Cargo (Rust)
+- Biicode (C/C++)
+- Berkshelf (Chef)
+- Hex (Elixir)
+- Cpan (Perl)
+
 ### Install Requirements
 
 Patchwork requires python3 and the pytz and tzlocal libraries. 
