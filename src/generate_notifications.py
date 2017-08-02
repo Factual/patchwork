@@ -3,7 +3,7 @@ import json
 from helpers import *
 
 def notify_slack(webhook, report):
-    n = 20
+    n = 20 # slack asks that each request have no more than 20 attachments
     if len(report) <= n:
         r = requests.post(webhook, json={'text': "", 'attachments': report})
         if r.status_code != 200:
@@ -16,14 +16,6 @@ def notify_slack(webhook, report):
             if r.status_code != 200:
                 print(r.status_code)
                 print(r.json())
-
-security_keys = [
-    'id',
-    'name',
-    'sv_count',
-    'updated_at',
-    'dependencies'
-]
 
 def get_formatted_versions(version_used):
     version_names = []
@@ -151,23 +143,40 @@ def get_version_text(dependencies):
     string = '\n'.join(ds)
     return string
 
+'''
+Create attachment for outdated versions of a particular group
+If more than n members in this group,
+breaks into separate attachments so the slack text doesn't get cut off
+'''
 def format_version_attachment(group, ts):
-    title_text = "{0} dependencies have {1}.".format(len(group['dependencies']), group['desc'])
-    attach = {
-        "fallback": title_text,
-        "color": group['color'],
-        "title": title_text,
-        "text": get_version_text(group['dependencies']),
-        "mrkdwn_in": ["text"],
-        "ts": ts
-    }
-    return attach
+    n = 80
+    tolerance = 5
+    if len(group['dependencies']) <= n:
+        groups = [group]
+    else:
+        groups = [group['dependencies'][i:i + n] for i in range(0, len(group['dependencies']), n)]
+    if len(groups[-1]) < tolerance: # avoid super small groups
+        groups[-2].extend(groups[-1])
+        groups = groups[:-1]
+    attachments = []
+    for g in groups:
+        title_text = "{0} dependencies have {1}.".format(len(g), group['desc'])
+        attach = {
+            "fallback": title_text,
+            "color": group['color'],
+            "title": title_text,
+            "text": get_version_text(g),
+            "mrkdwn_in": ["text"],
+            "ts": ts
+        }
+        attachments.append(attach)
+    return attachments
 
 def generate_versions_report(response):
     grouped = batch_by_outdatedness(response['dependencies'].values())
     attachments = []
     for g in grouped:
-        attachments.append(format_version_attachment(grouped[g], response['scan_time']))
+        attachments.extend(format_version_attachment(grouped[g], response['scan_time']))
     return attachments
 
 def generate_all_reports(response):
