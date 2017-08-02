@@ -1,6 +1,6 @@
 {
   "api_key": "VersionEye-API-Key",
-  "project_key": "VersionEye-Project-Key",
+  "api_organization": "VersionEye-Organization-Name",
   "directory": "/Absolute/path/to/repo_name",
   "report_directory": "repo_name",
   "traversal_depth": 0,

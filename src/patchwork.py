@@ -17,7 +17,7 @@ PARAMETERS = {
     'subdirectory_blacklist': ['node_modules'],
     'dependency_file_types': ['package.json'],
     'api_key': 'REPLACE_ME_IN_CONFIG_FILE',
-    'project_key': 'REPLACE_ME_IN_CONFIG_FILE',
+    'api_organization': 'REPLACE_ME_IN_CONFIG_FILE',
     'data_directory': PATCHWORK_PATH + '/data/',
     'slack_webhook': 'REPLACE_ME_IN_CONFIG_FILE',
     'test_webhook': 'REPLACE_ME_IN_CONFIG_FILE'
@@ -164,6 +164,28 @@ def combined_reports_all(files = {}, file_type_reports = {}, directory = ''):
             json.dump(combined_report, report_file, indent=4, separators=(',', ': '))
     return (path_name, combined_report)
 
+def create_project():
+    empty_upload_file = PATCHWORK_PATH + '/assets/package.json'
+    create_path = 'https://www.versioneye.com/api/v2/projects?api_key={0}'.format(PARAMETERS['api_key'])
+    files = {'upload': open(empty_upload_file,'rb')}
+    data = {'orga_name': PARAMETERS['api_organization'], 'temp': True}
+    project = requests.post(create_path, files=files, data=data)
+    if project.status_code != 201:
+        print('Error:', project.status_code)
+        print(project.json())
+        raise VersionEyeException
+    return project.json()['id']
+
+def delete_project(key=''):
+    if not key:
+        key = PARAMETERS['project_key']
+    delete_path = 'https://www.versioneye.com/api/v2/projects/{1}?api_key={0}'.format(PARAMETERS['api_key'], key)
+    req = requests.delete(delete_path)
+    if req.status_code != 200:
+        print('Error:', req.status_code)
+        print(req.json())
+        raise VersionEyeException
+
 def parse_args(argv):
     helpstring = 'dep-check.py -c <config_file> [-v]'
 
@@ -194,7 +216,9 @@ if __name__ == "__main__":
     config_file_path = parse_args(sys.argv[1:])
     parse_parameters(config_file_path)
     files = find_dependency_files()
+    PARAMETERS['project_key'] = create_project()
     report_path, report = combined_reports_all(files=files)
+    delete_project()
     if problems_detected(report):
         if TEST:
             slack_params = { "webhook": PARAMETERS["test_webhook"] }
