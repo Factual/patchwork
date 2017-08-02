@@ -22,7 +22,7 @@ Upload the Patchwork logo from `patchwork/assets/patchwork.png` under "Basic Inf
 ### Create your config file
 
 In `patchwork/src`, copy `config.json.example` to `config.json` and edit the resulting file as necessary.
-The API key, project key, and Slack webhook URL you just generated are required.
+The API key, organization name, and Slack webhook URL you just generated are required.
 Delete any lines of this file that you do not want - they will override the default values if they are set.
 
 #### Other Config Options
