@@ -8,11 +8,8 @@ Project to help Front (& potentially other teams) manage versioning upates and s
 
 ### Create VersionEye Account
 
-[Signup](https://www.versioneye.com/signup?utf8=%E2%9C%93) for an account at https://www.versioneye.com/signup?utf8=%E2%9C%93. Make note of your API Key.
-
-#### Initialize VersionEye Project
-
-Initialize your VersionEye project by uploading one of your dependency files from the sidebar of your VersionEye page (Projects >> --Create From Upload). If you click on the project (named after the file you uploaded), you can see the project key in parentheses next to "Name:" at the top of the page. Make note of this key. You can also change the project name if you wish by hitting the pencil button at the end of the line.
+[Signup](https://www.versioneye.com/signup?utf8=%E2%9C%93) for an account at https://www.versioneye.com/signup?utf8=%E2%9C%93. Make note of your API Key and organization name.
+The organization name is found at the top of your VersionEye dashboard when logged in and will be something like `[username]_orga`.
 
 ### Create a SlackBot
 
