@@ -78,6 +78,7 @@ def look_up_file(dependency_file_path):
     if advisory.status_code != 201:
         print('Error:', advisory.status_code)
         print(advisory.json())
+        delete_project()
         raise VersionEyeException
     return advisory.json()
 
@@ -85,7 +86,6 @@ def look_up_file(dependency_file_path):
 Finds or creates new folder for VersionEye reports.
 If name is not provided, creates a new folder based on the timestamp.
 
-:params top_directory: str Directory under which to create new subdirectory
 :params name: str Optional - desired name of subdirectory
 :returns: str Path to subdirectory
 """
@@ -109,7 +109,6 @@ def problems_detected(report):
 '''
 :param files: dict Keyed by file type, list of dependency files. Output of find_dependency_files
 :param directory: string Optional - directory to save combined file type report to
-:param individual_directory: string Option - directory to save individual file reports to
 :returns: dict with { file_type: combined_report } entries
 '''
 def combined_reports_by_file_type(files, directory):
@@ -186,6 +185,10 @@ def delete_project(key=''):
         print(req.json())
         raise VersionEyeException
 
+'''
+Sets global variables based on command line options
+Returns path to config file
+'''
 def parse_args(argv):
     helpstring = 'dep-check.py -c <config_file> [-v]'
 
