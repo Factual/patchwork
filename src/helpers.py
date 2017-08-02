@@ -13,7 +13,7 @@ def convert_versioneye_timestamp(time_string):
     return time.mktime(local_time.timetuple())
 
 def get_display_name(fname, params):
-    return fname.replace(params['directory'], params['report_directory'])
+    return fname.replace(params['directory'], params['directory_name'])
 
 def get_datetime():
     return datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d--%H_%M')
