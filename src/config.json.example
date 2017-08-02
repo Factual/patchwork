@@ -3,7 +3,7 @@
   "project_key": "VersionEye-Project-Key",
   "directory": "/Absolute/path/to/repo_name",
   "report_directory": "repo_name",
-  "traversal_depth": 4,
+  "traversal_depth": 0,
   "dependency_file_types": ["Gemfile.lock", "package.json"],
   "slack_webhook": "https://hooks.slack.com/services/WEBHOOK",
   "test_webhook": "https://hooks.slack.com/services/TEST_WEBHOOK"

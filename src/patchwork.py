@@ -10,7 +10,7 @@ VERBOSE = False
 DEFAULT_PARAMETERS = {
     'directory': '/',
     'report_directory': '/',
-    'traversal_depth': 1,
+    'traversal_depth': 0,
     'subdirectory_blacklist': ['node_modules'],
     'dependency_file_types': ['package.json'],
     'api_key': 'REPLACE_ME_IN_CONFIG_FILE',
