@@ -2,16 +2,16 @@ import requests
 import json
 from helpers import *
 
-def notify_slack(params, report):
+def notify_slack(webhook, report):
     n = 20
     print (report)
     if len(report) <= n:
-        r = requests.post(params['slack_webhook'], json={'text': "", 'attachments': report})
+        r = requests.post(webhook, json={'text': "", 'attachments': report})
         print(r.status_code)
     else:
         multiple_requests = [report[i:i + n] for i in range(0, len(report), n)]
         for req in multiple_requests:
-            r = requests.post(params['slack_webhook'], json={'text': "", 'attachments': req})
+            r = requests.post(webhook, json={'text': "", 'attachments': req})
             print(r.status_code)
 
 security_keys = [
@@ -186,4 +186,4 @@ notify_types = {
 
 def notify(params, response, notification_method='slack', notification_type='all'):
     formatted_report = notify_types[notification_type](response)
-    send_report = notify_methods[notification_method](params, formatted_report)
+    send_report = notify_methods[notification_method](params["webhook"], formatted_report)

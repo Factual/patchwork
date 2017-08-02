@@ -173,10 +173,12 @@ def combined_reports_all(files = {}, file_type_reports = {}, directory = '', per
 
 def parse_args(argv):
     helpstring = 'dep-check.py -c <config_file> [-v]'
-    fname = os.getcwd() + '/config.json' # if not specified, look in current directory
+    path_of_program = "/".join(os.path.realpath(__file__).split("/")[:-1])
+    fname = path_of_program + '/config.json' # if not specified, look in current directory
     global VERBOSE
+    global TEST
     try:
-        opts, args = getopt.getopt(argv,"hvc:",["verbose","config="])
+        opts, args = getopt.getopt(argv,"hvtc:",["verbose","test","config="])
     except getopt.GetoptError:
         print(helpstring)
         sys.exit(2)
@@ -188,6 +190,8 @@ def parse_args(argv):
             fname = arg
         elif opt in ("-v", "--verbose"):
             VERBOSE = True
+        elif opt in ("-t", "--test"):
+            TEST = True
     return fname
 
 if __name__ == "__main__":
@@ -196,4 +200,8 @@ if __name__ == "__main__":
     files = find_dependency_files(params)
     report_path, report = combined_reports_all(files=files)
     if problems_detected(report):
-        notify(params, report)
+        if TEST:
+            slack_params = { "webhook": params["test_webhook"] }
+        else:
+            slack_params = { "webhook": params["slack_webhook"] }
+        notify(slack_params, report)
