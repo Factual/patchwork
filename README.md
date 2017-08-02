@@ -3,7 +3,7 @@
 ## Factual Hackathon 2017
 
 Project to help Factual's Front Team manage versioning upates and security vulnerabilities in 3rd party package dependencies.
-Offered as-is with no plans for further updates. 
+Offered as-is with no plans for further updates.
 
 ## Setup Patchwork
 
@@ -93,6 +93,8 @@ If your copy of python3 is anywhere other than `usr/local/bin/python3`, you may 
 `cd` into `patchwork/src` and run `chmod +x patchwork.py` to make the dependency checker executable.
 Run via `./patchwork.py`, or `./patchwork.py -v` for verbose mode.
 
+Use the `-t` option to run in test mode (posts to a different Slack channel), `-s` to persist the JSON reports from VersionEye to the data_directory in your config file, or `-c` to specify a config file other than `patchwork/src/config.json`.
+
 ## Types of Notifications
 ### Versioning
 
@@ -106,7 +108,7 @@ Distinguishes between minor releases, middling releases, and new major version n
 
 Orange for security vulnerabilities published more than 2 weeks ago, red if published within the last two weeks (most recent sprint).
 
-## License 
+## License
 
 MIT License
 

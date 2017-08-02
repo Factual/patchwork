@@ -90,6 +90,8 @@ If name is not provided, creates a new folder based on the timestamp.
 :returns: str Path to subdirectory
 """
 def get_directory_for_reports(name = ''):
+    if not PERSIST:
+        return ''
     if not name:
         name = get_datetime()
     top_directory = PARAMETERS['data_directory']
@@ -190,7 +192,7 @@ Sets global variables based on command line options
 Returns path to config file
 '''
 def parse_args(argv):
-    helpstring = 'dep-check.py -c <config_file> [-v]'
+    helpstring = 'dep-check.py [-c <config_file>] [-v -t -s]'
 
     fname = PATCHWORK_PATH + '/src/config.json' # if not specified, look in current directory
     global VERBOSE
