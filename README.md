@@ -30,35 +30,35 @@ Delete any lines of this file that you do not want - they will override the defa
 
 #### Other Config Options
 
-##### directory
+##### `directory`
 
 str: Absolute path of the directory to search for outdated dependencies
 
-##### directory_name
+##### `directory_name`
 
 str: Name of the directory to search for outdated dependencies. Used in place of the absolute path in reporting: for example, if a dependency is at `/Users/yourName/repo_name/dependency.type` and directory_name is set to `repo_name`, Slack and email notifications will refer to the file by `repo_name/dependency.type` instead of the full path on your machine.
 
-##### traversal_depth
+##### `traversal_depth`
 
 int: represents how deeply to search for dependency files. For example, the default `traversal_depth = 0` represents only searching in the top-level directory and will return files like `repository/package.json` but not `repository/src/package.json`.
 
-##### subdirectory_blacklist
+##### `subdirectory_blacklist`
 
 str[]: Patchwork will ignore any subdirectories with the included names. By default, Patchwork blacklists `node_modules` subdirectories so you don't waste API calls looking up your dependencies' dependencies. For an even more thorough search that includes all these files, you can override this setting in your config file with `subdirectory_blacklist: []`.
 
-##### data_directory
+##### `data_directory`
 
 str: If using the `-s` or `--save` option to save your dependency reports as JSON, this specifies the directory to use. By default, `data_directory` is `patchwork/data/`, meaning reports will be saved to `patchwork/data/<timestamp_of_request_initialization>/`. The timestamp-based subdirectories allow you to find reports from a given day or time easily.
 
 You can override with any absolute path if you wish to save the reports outside of the Patchwork folder.
 
-##### test_webhook
+##### `test_webhook`
 
 str: If using the `-t` or `--test` option, sends Slack notifications to this webhook. This option allows you to post to a different channel (I recommend your own slackbot channel) when testing so you don't overwhelm the real channel.
 
-##### dependency_file_types
+##### `dependency_file_types`
 
-str[]: Patchwork searches for and uploads only those files that match a file name in this array. Default is `['package.json']`. See below for more options: 
+str[]: Patchwork searches for and uploads to VersionEye only those files that match a file name in this array. Default is `['package.json']`. See below for more options:
 
 ###### Supported Dependency Options
 
