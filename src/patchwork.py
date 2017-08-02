@@ -93,11 +93,7 @@ def get_directory_for_reports(name = ''):
     if not name:
         name = get_datetime()
     top_directory = PARAMETERS['data_directory']
-    print("TOP")
-    print(top_directory)
     data_path = top_directory + name
-    print("PATH")
-    print(data_path)
     if not os.path.exists(top_directory):
         os.makedirs(top_directory)
     if not os.path.exists(data_path):
@@ -196,7 +192,6 @@ def parse_args(argv):
 
 if __name__ == "__main__":
     config_file_path = parse_args(sys.argv[1:])
-    print(PATCHWORK_PATH)
     parse_parameters(config_file_path)
     files = find_dependency_files()
     report_path, report = combined_reports_all(files=files)

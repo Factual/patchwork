@@ -4,15 +4,18 @@ from helpers import *
 
 def notify_slack(webhook, report):
     n = 20
-    print (report)
     if len(report) <= n:
         r = requests.post(webhook, json={'text': "", 'attachments': report})
-        print(r.status_code)
+        if r.status_code != 200:
+            print(r.status_code)
+            print(r.json())
     else:
         multiple_requests = [report[i:i + n] for i in range(0, len(report), n)]
         for req in multiple_requests:
             r = requests.post(webhook, json={'text': "", 'attachments': req})
-            print(r.status_code)
+            if r.status_code != 200:
+                print(r.status_code)
+                print(r.json())
 
 security_keys = [
     'id',
@@ -133,7 +136,6 @@ def batch_by_outdatedness(dependencies):
             v = dict(version)
             v['available'] = avail
             v['dependency'] = d['name']
-            print(v)
             if major_release(version['version'], avail):
                 severity['major']['dependencies'].append(v)
             elif minor_release(version['version'], avail):
