@@ -60,25 +60,28 @@ str[]: Patchwork searches for and uploads to VersionEye only those files that ma
 
 ###### Supported Dependency Options
 
-Files managed by the following package managers can be parsed with Patchwork through the VersionEye API. For example, both `Gemfile`s and `Gemfile.lock`s are supported under the Ruby Bundler.
-
-- Composer (PHP)
-- Bundler (Ruby)
-- PIP (Python)
-- NPM (Node.JS)
-- Yarn (Node.JS)
-- Bower (JavaScript)
-- CocoaPods (Objective-C)
-- Maven (Java)
-- SBT (Scala)
-- Gradle (Groovy)
-- Leiningen (Clojure)
-- Nuget (Microsoft .NET platform)
-- Cargo (Rust)
-- Biicode (C/C++)
-- Berkshelf (Chef)
-- Hex (Elixir)
-- Cpan (Perl)
+- pom.xml
+- build.sbt
+- Gemfile.lock
+- requirements.txt
+- setup.py
+- biicode.conf
+- Berksfile.lock
+- metadata.rb
+- project.json
+- packages.config
+- Cargo.toml
+- Cargo.lock
+- package.json
+- yarn.lock
+- npm-shrinkwrap.json
+- bower.json
+- composer.json
+- composer.lock
+- Podfile
+- Podfile.lock
+- project.clj
+- mix.exs
 
 ### Install Requirements
 
