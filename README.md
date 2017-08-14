@@ -58,7 +58,7 @@ str: If using the `-t` or `--test` option, sends Slack notifications to this web
 
 str[]: Patchwork searches for and uploads to VersionEye only those files that match a file name in this array. Default is `['package.json']`. See below for more options:
 
-###### Supported Dependency Options
+###### <a name="dependency-types"></a>Supported Dependency Options
 
 - pom.xml
 - build.sbt
