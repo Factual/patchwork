@@ -1,0 +1,10 @@
+{
+  "api_key": "VersionEye-API-Key",
+  "api_organization": "VersionEye-Organization-Name",
+  "slack_webhook": "https://hooks.slack.com/services/WEBHOOK",
+  "test_webhook": "(optional) https://hooks.slack.com/services/TEST_WEBHOOK",
+  "directory": "DEFAULT",
+  "report_directory": "DEFAULT",
+  "traversal_depth": "DEFAULT",
+  "subdirectory_blacklist": "DEFAULT"
+}

@@ -3,7 +3,7 @@
 ## Factual Hackathon 2017
 
 Project to help Factual's Front Team manage versioning upates and security vulnerabilities in 3rd party package dependencies.
-Offered as-is with no plans for further updates. 
+Offered as-is with no plans for further updates.
 
 ## Setup Patchwork
 
@@ -58,27 +58,30 @@ str: If using the `-t` or `--test` option, sends Slack notifications to this web
 
 str[]: Patchwork searches for and uploads to VersionEye only those files that match a file name in this array. Default is `['package.json']`. See below for more options:
 
-###### Supported Dependency Options
+###### <a name="dependency-types"></a>Supported Dependency Options
 
-Files managed by the following package managers can be parsed with Patchwork through the VersionEye API. For example, both `Gemfile`s and `Gemfile.lock`s are supported under the Ruby Bundler.
-
-- Composer (PHP)
-- Bundler (Ruby)
-- PIP (Python)
-- NPM (Node.JS)
-- Yarn (Node.JS)
-- Bower (JavaScript)
-- CocoaPods (Objective-C)
-- Maven (Java)
-- SBT (Scala)
-- Gradle (Groovy)
-- Leiningen (Clojure)
-- Nuget (Microsoft .NET platform)
-- Cargo (Rust)
-- Biicode (C/C++)
-- Berkshelf (Chef)
-- Hex (Elixir)
-- Cpan (Perl)
+- pom.xml
+- build.sbt
+- Gemfile.lock
+- requirements.txt
+- setup.py
+- biicode.conf
+- Berksfile.lock
+- metadata.rb
+- project.json
+- packages.config
+- Cargo.toml
+- Cargo.lock
+- package.json
+- yarn.lock
+- npm-shrinkwrap.json
+- bower.json
+- composer.json
+- composer.lock
+- Podfile
+- Podfile.lock
+- project.clj
+- mix.exs
 
 ### Install Requirements
 
@@ -93,6 +96,8 @@ If your copy of python3 is anywhere other than `usr/local/bin/python3`, you may 
 `cd` into `patchwork/src` and run `chmod +x patchwork.py` to make the dependency checker executable.
 Run via `./patchwork.py`, or `./patchwork.py -v` for verbose mode.
 
+Use the `-t` option to run in test mode (posts to a different Slack channel), `-s` to persist the JSON reports from VersionEye to the data_directory in your config file, or `-c` to specify a config file other than `patchwork/src/config.json`.
+
 ## Types of Notifications
 ### Versioning
 
@@ -106,7 +111,7 @@ Distinguishes between minor releases, middling releases, and new major version n
 
 Orange for security vulnerabilities published more than 2 weeks ago, red if published within the last two weeks (most recent sprint).
 
-## License 
+## License
 
 MIT License
 

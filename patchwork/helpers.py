@@ -1,6 +1,9 @@
 from datetime import datetime, timedelta, timezone
 import time
 
+def current_time():
+    return time.time()
+
 '''
 Parses the timestamps in the VersionEye json responses
 Returns date object in local timezone
@@ -62,7 +65,7 @@ Assumes available version is more recent or equivalent to 'ours'
 eg if ours = 1.2.0, available = 1.2.2 would be true
 but available = 1.3.0 or higher would be false
 '''
-def minor_release(ours, available):
+def maintenance_release(ours, available):
     return ours.startswith('.'.join(available.split('.')[:-1])) and ours != available
 
 '''
@@ -80,7 +83,7 @@ def major_release(ours, available):
 
 '''
 True iff first bit of version numbers are same but more than the last bit differs
-- essentially, neither a major nor a minor release
+- essentially, neither a major nor a maintentance release
 Assumes available version is more recent or equivalent to 'ours'
 
 :param ours: Version specified by dependency file
@@ -89,5 +92,5 @@ Assumes available version is more recent or equivalent to 'ours'
 eg if ours = 1.2.0, 1.3 <= available < 2.0 would be true,
 all else would be false
 '''
-def other_release(ours, available):
+def minor_release(ours, available):
     return ours != available

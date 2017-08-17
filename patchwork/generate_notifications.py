@@ -1,6 +1,6 @@
 import requests
 import json
-from helpers import *
+from .helpers import *
 
 def notify_slack(webhook, report):
     n = 20 # slack asks that each request have no more than 20 attachments
@@ -104,15 +104,15 @@ def generate_security_report(response):
 
 def batch_by_outdatedness(dependencies):
     severity = {
-        'minor': {
+        'maintenance': {
             'dependencies': [],
             'color': "#ffb74d",
-            'desc': 'a minor update available'
+            'desc': 'a maintenance update available'
         },
-        'middle': {
+        'minor': {
             'dependencies': [],
             'color': "#f57c00",
-            'desc': 'an update available'
+            'desc': 'a minor update available'
         },
         'major': {
             'dependencies': [],
@@ -130,10 +130,10 @@ def batch_by_outdatedness(dependencies):
             v['dependency'] = d['name']
             if major_release(version['version'], avail):
                 severity['major']['dependencies'].append(v)
+            elif maintenance_release(version['version'], avail):
+                severity['maintenance']['dependencies'].append(v)
             elif minor_release(version['version'], avail):
                 severity['minor']['dependencies'].append(v)
-            elif other_release(version['version'], avail):
-                severity['middle']['dependencies'].append(v)
     return severity
 
 def get_version_text(dependencies):
@@ -152,10 +152,10 @@ def format_version_attachment(group, ts):
     n = 80
     tolerance = 5
     if len(group['dependencies']) <= n:
-        groups = [group]
+        groups = [group['dependencies']]
     else:
         groups = [group['dependencies'][i:i + n] for i in range(0, len(group['dependencies']), n)]
-    if len(groups[-1]) < tolerance: # avoid super small groups
+    if len(groups[-1]) < tolerance and len(groups) > 1: # avoid super small groups
         groups[-2].extend(groups[-1])
         groups = groups[:-1]
     attachments = []
