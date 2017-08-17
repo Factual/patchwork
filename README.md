@@ -22,15 +22,15 @@ Upload the Patchwork logo from `patchwork/assets/patchwork.png` under "Basic Inf
 
 ### Create your config file
 
-In `patchwork/src`, copy `config.json.example` to `config.json` and edit the resulting file as necessary.
+In `patchwork/patchwork`, fill out `config.json` as necessary. If you downloaded the `factual-patchwork` package via `pip3`, you can also just run `patchwork-config`.
 The API key, organization name, and Slack webhook URL you just generated are required.
-Delete any lines of this file that you do not want - they will override the default values if they are set.
+To keep the defaults for a parameter, use the `"DEFAULT"` key or delete the line entirely.
 
 #### Other Config Options
 
 ##### `directory`
 
-str: Absolute path of the directory to search for outdated dependencies
+str: Absolute path of the directory to search for outdated dependencies. Default is the directory which `patchwork` is called from.
 
 ##### `directory_name`
 
@@ -43,12 +43,6 @@ int: represents how deeply to search for dependency files. For example, the defa
 ##### `subdirectory_blacklist`
 
 str[]: Patchwork will ignore any subdirectories with the included names. By default, Patchwork blacklists `node_modules` subdirectories so you don't waste API calls looking up your dependencies' dependencies. For an even more thorough search that includes all these files, you can override this setting in your config file with `subdirectory_blacklist: []`.
-
-##### `data_directory`
-
-str: If using the `-s` or `--save` option to save your dependency reports as JSON, this specifies the directory to use. By default, `data_directory` is `patchwork/data/`, meaning reports will be saved to `patchwork/data/<timestamp_of_request_initialization>/`. The timestamp-based subdirectories allow you to find reports from a given day or time easily.
-
-You can override with any absolute path if you wish to save the reports outside of the Patchwork folder.
 
 ##### `test_webhook`
 
@@ -67,7 +61,6 @@ str[]: Patchwork searches for and uploads to VersionEye only those files that ma
 - setup.py
 - biicode.conf
 - Berksfile.lock
-- metadata.rb
 - project.json
 - packages.config
 - Cargo.toml
@@ -91,12 +84,21 @@ Patchwork does not require any nonstandard libraries.
 
 If your copy of python3 is anywhere other than `usr/local/bin/python3`, you may have to update the shebang on line 1 of `patchwork/src/patchwork.py` with the path to your copy. The path can be found with `which python3`.
 
+You can also install Patchwork via `pip3 install factual-patchwork`. This is the recommended way to install Patchwork if you do not wish to do any customization in the code.
+
 ## Run Patchwork
+
+Recommended: 
+```
+pip3 install factual-patchwork
+patchwork-config
+patchwork
+```
 
 `cd` into `patchwork/src` and run `chmod +x patchwork.py` to make the dependency checker executable.
 Run via `./patchwork.py`, or `./patchwork.py -v` for verbose mode.
 
-Use the `-t` option to run in test mode (posts to a different Slack channel), `-s` to persist the JSON reports from VersionEye to the data_directory in your config file, or `-c` to specify a config file other than `patchwork/src/config.json`.
+Use the `-t` option to run in test mode (posts to a different Slack channel).
 
 ## Types of Notifications
 ### Versioning
