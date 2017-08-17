@@ -1,4 +1,4 @@
-from helpers import convert_versioneye_timestamp
+from .helpers import convert_versioneye_timestamp, current_time
 
 top_level_fields = {
     'dep_number': 'total_dependencies',
@@ -62,11 +62,27 @@ def combine_dependencies(dependency1, dependency2):
     d['version_used'].extend(dependency2['version_used'])
     return d
 
+def get_empty_report():
+    return {
+        'dependencies': {},
+        'total_dependencies': 0,
+        'total_vulnerabilities': 0,
+        'total_outdated': 0,
+        'scan_time': current_time()
+    }
+
 '''
 Reports: formatted output of structure_data
 '''
 def combine_reports(report1, report2):
     dependencies = {}
+    if 'dependencies' not in report1 and 'dependencies' not in report2:
+        return get_empty_report()
+    elif 'dependencies' not in report2:
+        return report1
+    elif 'dependencies' not in report1:
+        return report2
+
     d1 = report1['dependencies']
     d2 = report2['dependencies']
     outdated_count = 0

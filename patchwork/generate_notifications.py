@@ -1,6 +1,6 @@
 import requests
 import json
-from helpers import *
+from .helpers import *
 
 def notify_slack(webhook, report):
     n = 20 # slack asks that each request have no more than 20 attachments
@@ -152,10 +152,10 @@ def format_version_attachment(group, ts):
     n = 80
     tolerance = 5
     if len(group['dependencies']) <= n:
-        groups = [group]
+        groups = [group['dependencies']]
     else:
         groups = [group['dependencies'][i:i + n] for i in range(0, len(group['dependencies']), n)]
-    if len(groups[-1]) < tolerance: # avoid super small groups
+    if len(groups[-1]) < tolerance and len(groups) > 1: # avoid super small groups
         groups[-2].extend(groups[-1])
         groups = groups[:-1]
     attachments = []
