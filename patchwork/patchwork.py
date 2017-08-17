@@ -2,9 +2,9 @@
 import os, sys, getopt
 import json
 import requests
-from generate_notifications import notify
-from structure_data import *
-from helpers import *
+from .generate_notifications import notify
+from .structure_data import *
+from .helpers import *
 
 VERBOSE = False
 TEST = False
@@ -15,7 +15,10 @@ PARAMETERS = {
     'directory_name': os.getcwd().split('/')[-1],
     'traversal_depth': 0,
     'subdirectory_blacklist': ['node_modules'],
-    'dependency_file_types': ['package.json'],
+    'dependency_file_types': ['package.json', 'Gemfile.lock', 'pom.xml', 'build.sbt', 'requirements.txt',
+        'setup.py', 'biicode.conf', 'Berksfile.lock', 'project.json', 'packages.config',
+        'Cargo.toml', 'Cargo.lock', 'yarn.lock', 'npm-shrinkwrap.json', 'bower.json', 'composer.json',
+        'composer.lock', 'Podfile', 'Podfile.lock', 'project.clj', 'mix.exs'],
     'api_key': 'REPLACE_ME_IN_CONFIG_FILE',
     'api_organization': 'REPLACE_ME_IN_CONFIG_FILE',
     'data_directory': PATCHWORK_PATH + '/data/',
@@ -35,6 +38,7 @@ def parse_parameters(config_file = ''):
     global PARAMETERS
     with open(config_file) as json_file:
         parameters = json.load(json_file)
+        parameters = {k: v for k, v in parameters.items() if v != 'DEFAULT'}
         PARAMETERS = {**PARAMETERS, **parameters}
 
 """
@@ -157,8 +161,9 @@ def combined_reports_all(files = {}, file_type_reports = {}, directory = ''):
         all_reports.append(file_type_reports[ftype])
 
     combined_report = all_reports[0]
-    for report in all_reports[1:]:
-        combined_report = combine_reports(combined_report, report)
+    if len(all_reports) > 1:
+        for report in all_reports[1:]:
+            combined_report = combine_reports(combined_report, report)
 
     if PERSIST:
         with open(path_name, 'w') as report_file:
@@ -166,7 +171,7 @@ def combined_reports_all(files = {}, file_type_reports = {}, directory = ''):
     return (path_name, combined_report)
 
 def create_project():
-    empty_upload_file = PATCHWORK_PATH + '/assets/package.json'
+    empty_upload_file = PATCHWORK_PATH + '/patchwork/package.json'
     create_path = 'https://www.versioneye.com/api/v2/projects?api_key={0}'.format(PARAMETERS['api_key'])
     files = {'upload': open(empty_upload_file,'rb')}
     data = {'orga_name': PARAMETERS['api_organization'], 'temp': True}
@@ -194,7 +199,7 @@ Returns path to config file
 def parse_args(argv):
     helpstring = 'dep-check.py [-c <config_file>] [-v -t -s]'
 
-    fname = PATCHWORK_PATH + '/src/config.json' # if not specified, look in current directory
+    fname = PATCHWORK_PATH + '/patchwork/config.json' # if not specified, look in current directory
     global VERBOSE
     global TEST
     global PERSIST
@@ -217,7 +222,7 @@ def parse_args(argv):
             PERSIST = True
     return fname
 
-if __name__ == "__main__":
+def main():
     config_file_path = parse_args(sys.argv[1:])
     parse_parameters(config_file_path)
     files = find_dependency_files()
@@ -230,3 +235,6 @@ if __name__ == "__main__":
         else:
             slack_params = { "webhook": PARAMETERS["slack_webhook"] }
         notify(slack_params, report)
+
+if __name__ == "__main__":
+    main()

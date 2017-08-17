@@ -1,4 +1,4 @@
-config.json
+MANIFEST.in
 data/*/*
 __pycache__/
 setup.py

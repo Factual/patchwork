@@ -1,6 +1,9 @@
 from datetime import datetime, timedelta, timezone
 import time
 
+def current_time():
+    return time.time()
+
 '''
 Parses the timestamps in the VersionEye json responses
 Returns date object in local timezone
